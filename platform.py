@@ -15,6 +15,13 @@ _io = [
         IOStandard("LVCMOS33")
     ),
 
+    # debug serial
+    ("dbgserial", 0,
+        Subsignal("tx", Pins("G5")),
+        Subsignal("rx", Pins("F5")),
+        IOStandard("LVCMOS33")
+    ),
+
     # ethernet
     ("eth_clocks", 0,
         Subsignal("tx", Pins("D1")),
@@ -61,6 +68,9 @@ _io = [
     ),
 
     ("U600", 0, Pins("J601:7 J601:8 J601:9 J601:10 J600:11 J601:12 J601:13 J601:14"), IOStandard("LVCMOS33")),
+    ("U601", 0, Pins("J601:23 J601:24 J601:25 J601:26 J600:27 J601:28 J601:29 J601:30"), IOStandard("LVCMOS33")),
+    ("U604", 0, Pins("J601:15 J601:16 J601:17 J601:18 J600:19 J601:20 J601:21 J601:22"), IOStandard("LVCMOS33")),
+    ("U605", 0, Pins("J601:31 J601:32 J601:33 J601:34 J600:35 J601:36 J601:37 J601:38"), IOStandard("LVCMOS33")),
 
     ("U608", 0, Pins("J601:39 J601:40 J601:41 J601:42 J600:43 J601:44 J601:45"), IOStandard("LVCMOS33")),
 
