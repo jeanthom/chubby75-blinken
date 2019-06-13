@@ -23,6 +23,8 @@ from litedram.core.controller import ControllerSettings
 from liteeth.phy.s6rgmii import LiteEthPHYRGMII
 from liteeth.core.mac import LiteEthMAC
 
+from litex.soc.cores.uart import UARTWishboneBridge
+
 import platform
 import os
 from j600io import J600IO
@@ -116,7 +118,7 @@ class BlinkenSOC(SoCSDRAM):
     mem_map.update(SoCSDRAM.mem_map)
 
     def __init__(self, platform):
-        sys_clk_freq = int(50e6)
+        sys_clk_freq = int(75e6)
         SoCSDRAM.__init__(self, platform, clk_freq=sys_clk_freq,
             cpu_type="picorv32",
             integrated_rom_size=0x6000,
@@ -124,11 +126,14 @@ class BlinkenSOC(SoCSDRAM):
 
         self.submodules.crg = crg = _CRG(platform, sys_clk_freq)
 
+        self.submodules.bridge = UARTWishboneBridge(platform.request("dbgserial"), sys_clk_freq, baudrate=115200)
+        self.add_wb_master(self.bridge.wishbone)
+
         self.submodules.j600io = J600IO(
             platform.request("U600"),
-            None,
-            None,
-            None,
+            platform.request("U601"),
+            platform.request("U604"),
+            platform.request("U605"),
             None)
         self.add_wb_slave(mem_decoder(self.mem_map["j600io"]), self.j600io.bus)
         self.add_memory_region("j600io", self.mem_map["j600io"] | self.shadow_base, 0x6)
@@ -149,12 +154,6 @@ class BlinkenSOC(SoCSDRAM):
                                 sdram_module.timing_settings,
                                 controller_settings=ControllerSettings(
                                     with_refresh=False))
-
-        # led blink
-        led_counter = Signal(32)
-        self.sync += led_counter.eq(led_counter + 1)
-        self.comb += platform.request("user_led").eq(led_counter[26])
-        self.comb += platform.request("bufdir").eq(0)
 
 def main():
     soc = BlinkenSOC(platform.Platform())
