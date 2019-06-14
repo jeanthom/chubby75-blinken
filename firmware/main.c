@@ -15,15 +15,25 @@ void my_udp_callback(unsigned int src_ip, unsigned short src_port, unsigned shor
 void my_udp_callback(unsigned int src_ip, unsigned short src_port, unsigned short dst_port, void *data, unsigned int length) {
 	uint8_t *buf;
 
-	printf("Recevied %u bytes from %u:%d\n", length, src_ip, src_port);
+	printf("Received %u bytes from %u:%d\n", length, src_ip, src_port);
 
-	buf = (uint8_t*)data;
-	printf("buf[0] = %d\n",buf[0]);
+	if (length == 2) {
+		buf = (uint8_t*)data;
 
-	if (buf[0] == '1') {
-		J600IO_U600 = 0xFF;
-	} else if (buf[0] == '0') {
-		J600IO_U600 = 0x00;
+		switch (buf[0]) {
+			case '0':
+				J600IO_U600 = buf[1];
+				break;
+			case '1':
+				J600IO_U601 = buf[1];
+				break;
+			case '2':
+				J600IO_U604 = buf[1];
+				break;
+			case '3':
+				J600IO_U605 = buf[1];
+				break;
+		}
 	}
 }
 
