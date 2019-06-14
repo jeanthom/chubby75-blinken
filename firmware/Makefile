@@ -8,9 +8,8 @@ OBJECTS=\
 	main.o \
 	irq.o \
 	shell.o \
-	ethernet.o \
 	j600io.o \
-	telnet.o \
+	../libnet/microudp.o \
 	boot-helper-$(CPU).o
 
 GIT_VERSION := $(shell git describe --abbrev=7 --dirty --always --tags)
@@ -22,10 +21,8 @@ CFLAGS += \
 CFLAGS += \
 	-Wall \
 	-Werror \
-	-O0 \
+	-O3 \
 	-D__GITVERSION__=\"$(GIT_VERSION)\"
-
-include $(UIP_DIRECTORY)/Makefile.mk
 
 LDFLAGS +=
 
@@ -52,14 +49,14 @@ endif
 
 firmware.elf: $(FIRMWARE_DIRECTORY)/$(LINKER_LD) $(OBJECTS)
 
-%.elf: $(CRT0) ../libbase/libbase-nofloat.a ../libcompiler_rt/libcompiler_rt.a ../uip/libuip.a
+%.elf: $(CRT0) ../libbase/libbase-nofloat.a ../libcompiler_rt/libcompiler_rt.a
 	$(LD) $(LDFLAGS) -L$(FIRMWARE_DIRECTORY) -T $(FIRMWARE_DIRECTORY)/$(LINKER_LD) -N -o $@ \
 		$(CRT0) \
 		$(OBJECTS) \
 		-L../libbase \
 		-L../libcompiler_rt \
-		-L../uip \
-		-lbase-nofloat -lcompiler_rt -luip
+		-L../libnet \
+		-lbase-nofloat -lcompiler_rt
 	chmod -x $@
 
 # pull in dependency info for *existing* .o files

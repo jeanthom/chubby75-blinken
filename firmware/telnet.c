@@ -28,6 +28,7 @@ void telnet_init(void)
 
 int telnet_event_callback(struct tcp_socket *s, void *ptr, tcp_socket_event_t event)
 {
+	printf("Telnet event callback\n");
 	switch(event)
 	{
 		case TCP_SOCKET_CONNECTED:
@@ -50,6 +51,8 @@ int telnet_data_callback(struct tcp_socket *s, void *ptr, const char *rxbuf, int
 {
 	int i;
 	unsigned int telnet_rx_produce_next;
+
+	printf("Telnet data callback\n");
 
 	for(i=0; i<rxlen; i++) {
 		telnet_rx_produce_next = (telnet_rx_produce + 1) & TELNET_RINGBUFFER_MASK_RX;

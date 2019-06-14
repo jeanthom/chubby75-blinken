@@ -136,9 +136,9 @@ class BlinkenSOC(SoCSDRAM):
             platform.request("U605"),
             None)
         self.add_wb_slave(mem_decoder(self.mem_map["j600io"]), self.j600io.bus)
-        self.add_memory_region("j600io", self.mem_map["j600io"] | self.shadow_base, 0x6)
+        self.add_memory_region("j600io", self.mem_map["j600io"] | self.shadow_base, 0x10)
 
-        self.submodules.ethphy = LiteEthPHYRGMII(platform.request("eth_clocks", 0), platform.request("eth", 0))
+        self.submodules.ethphy = LiteEthPHYRGMII(platform.request("eth_clocks", 1), platform.request("eth", 1))
         self.submodules.ethmac = LiteEthMAC(phy=self.ethphy, dw=32, interface="wishbone", endianness=self.cpu.endianness)
         self.add_wb_slave(mem_decoder(self.mem_map["ethmac"]), self.ethmac.bus)
         self.add_memory_region("ethmac", self.mem_map["ethmac"] | self.shadow_base, 0x2000)
@@ -158,8 +158,7 @@ class BlinkenSOC(SoCSDRAM):
 def main():
     soc = BlinkenSOC(platform.Platform())
     
-    builder = Builder(soc, compile_gateware=True, output_dir="build")
-    builder.add_software_package("uip", "{}/firmware/uip".format(os.getcwd()))
+    builder = Builder(soc, compile_gateware=False, output_dir="build")
     builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
     builder.build(toolchain_path = "/home/jeanthomas/Applications/Xilinx")
 

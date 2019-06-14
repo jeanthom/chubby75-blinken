@@ -6,13 +6,28 @@
 #include <irq.h>
 #include <uart.h>
 #include <time.h>
+#include <net/microudp.h>
 
 #include "shell.h"
-#include "ethernet.h"
-#include "telnet.h"
+#include "j600io.h"
+
+void my_udp_callback(unsigned int src_ip, unsigned short src_port, unsigned short dst_port, void *data, unsigned int length);
+void my_udp_callback(unsigned int src_ip, unsigned short src_port, unsigned short dst_port, void *data, unsigned int length) {
+	uint8_t *buf;
+
+	printf("Recevied %u bytes from %u:%d\n", length, src_ip, src_port);
+
+	buf = (uint8_t*)data;
+	printf("buf[0] = %d\n",buf[0]);
+
+	if (buf[0] == '1') {
+		J600IO_U600 = 0xFF;
+	} else if (buf[0] == '0') {
+		J600IO_U600 = 0x00;
+	}
+}
 
 int main(void) {
-	int i = 0;
 	const unsigned char mac[] = { 0x83, 0x3F, 0x27, 0x2D, 0x53, 0x7F };
 	const unsigned char ip_addr[] = { 172,19,1,31 };
 
@@ -25,21 +40,18 @@ int main(void) {
 	puts("Git revision: "__GITVERSION__);
 	printf("CPU type: %s\n", config_cpu_type_read());
 	
-	ethernet_init(mac,ip_addr);
-	shell_init();
+	eth_init();
+	microudp_start(mac, IPTOINT(ip_addr[0], ip_addr[1], ip_addr[2], ip_addr[3]));
+	//shell_init();
 
-	telnet_init();
+	microudp_set_callback(my_udp_callback);
+
+	//telnet_init();
 	
 	while (1) {
 		//shell_service();
-		ethernet_service();
-		//uart_sync();
-
-		if (i == 100000) {
-			printf("heartbeet\n");
-			i = 0;
-		}
-		i++;
+		//ethernet_service();
+		microudp_service();
 	}
 
 	return 0;

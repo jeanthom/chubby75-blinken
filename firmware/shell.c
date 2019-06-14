@@ -89,9 +89,17 @@ void shell_service(void) {
 	} else if(strcmp(token, "reboot") == 0) {
 		reboot();
 	} else if (strcmp(token, "on") == 0) {
-		j600io_write_u600(0xFFFF);
+		J600IO_U600 = 0xFF;
+		J600IO_U601 = 0xFF;
+		J600IO_U604 = 0xFF;
+		J600IO_U605 = 0xFF;
 	} else if (strcmp(token, "off") == 0) {
-		j600io_write_u600(0);
+		J600IO_U600 = 0;
+		J600IO_U601 = 0;
+		J600IO_U604 = 0;
+		J600IO_U605 = 0;
+	} else if (strcmp(token, "toggle") == 0) {
+		J600IO_U600 = ~J600IO_U600;
 	}
 
 	prompt();

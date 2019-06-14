@@ -28,7 +28,14 @@ void isr(void) {
 		uart_isr();
 	} else if (irqs & (1 << EBREAK_ECALL_ILLEGAL_INTERRUPT)) {
 		emerg_printf("EBREAK_ECALL_ILLEGAL_INTERRUPT :-(\n");
+		while (1) {}
 	} else if (irqs & (1 << BUS_ERROR_INTERRUPT)) {
 		emerg_printf("BUS_ERROR_INTERRUPT :-(\n");
+		while (1) {}
+	} else {
+		if (irqs != 0) {
+			emerg_printf("unknown irq (%d) :-(\n", irqs);
+			while (1) {}
+		}
 	}
 }
