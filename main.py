@@ -28,6 +28,7 @@ from litex.soc.cores.uart import UARTWishboneBridge
 import platform
 import os
 from j600io import J600IO
+from heartbeat import Heartbeat
 
 class _CRG(Module):
     def __init__(self, platform, sys_clk_freq):
@@ -129,6 +130,8 @@ class BlinkenSOC(SoCSDRAM):
         self.submodules.bridge = UARTWishboneBridge(platform.request("dbgserial"), sys_clk_freq, baudrate=115200)
         self.add_wb_master(self.bridge.wishbone)
 
+        self.submodules.heartbeat = Heartbeat(sys_clk_freq, 0.5, platform.request("user_led"))
+
         self.submodules.j600io = J600IO(
             platform.request("U600"),
             platform.request("U601"),
@@ -158,7 +161,7 @@ class BlinkenSOC(SoCSDRAM):
 def main():
     soc = BlinkenSOC(platform.Platform())
     
-    builder = Builder(soc, compile_gateware=False, output_dir="build")
+    builder = Builder(soc, compile_gateware=True, output_dir="build")
     builder.add_software_package("firmware", "{}/firmware".format(os.getcwd()))
     builder.build(toolchain_path = "/home/jeanthomas/Applications/Xilinx")
 
